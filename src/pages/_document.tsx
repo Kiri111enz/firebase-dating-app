@@ -1,11 +1,11 @@
-import Document, { DocumentContext } from 'next/document';
+import Document, { DocumentContext, DocumentInitialProps } from 'next/document';
 import { ServerStyles, createStylesServer } from '@mantine/next';
 import { rtlCache } from '../rtl-cache';
 
 const stylesServer = createStylesServer(rtlCache);
 
 export default class _Document extends Document {
-    static async getInitialProps(ctx: DocumentContext) {
+    static async getInitialProps(ctx: DocumentContext): Promise<DocumentInitialProps> {
         const initialProps = await Document.getInitialProps(ctx);
 
         return {
