@@ -14,18 +14,18 @@ const auth = getAuth(firebase);
 export const AppContext = createContext({ firebase, auth });
 
 const App: React.FC<AppProps> = ({ Component, pageProps }) => (
-    <>
+    <div dir="rtl">
         <Head>
             <title>Dating App</title>
             <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
         </Head>
 
-        <MantineProvider withGlobalStyles withNormalizeCSS emotionCache={rtlCache}>
+        <MantineProvider withGlobalStyles withNormalizeCSS emotionCache={rtlCache} theme={{ dir: 'rtl' }}>
             <AppContext.Provider value={{ firebase, auth }}>
                 <Component {...pageProps} />
             </AppContext.Provider>
         </MantineProvider>
-    </>
+    </div>
 );
 
 export default App;
