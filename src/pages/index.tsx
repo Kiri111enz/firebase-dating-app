@@ -25,12 +25,13 @@ const Home: NextPage = () => {
                     Profile content
                 </Tabs.Panel>
     
-                <SegmentedControl style={{ position: 'sticky' }} className="top-[100vh]" fullWidth value={activeTab} onChange={setActiveTab} data={[
-                    { value: 'feed', label: 'Feed' },
-                    { value: 'likes', label: 'Likes' },
-                    { value: 'chats', label: 'Chats', },
-                    { value: 'profile', label: 'Profile' }
-                ]}/>
+                <SegmentedControl style={{ position: 'sticky' }} className="top-[100vh]" fullWidth 
+                    value={activeTab} onChange={setActiveTab} data={[
+                        { value: 'feed', label: 'Feed' },
+                        { value: 'likes', label: 'Likes' },
+                        { value: 'chats', label: 'Chats', },
+                        { value: 'profile', label: 'Profile' }
+                    ]}/>
             </Tabs>
         </RequireAuth>
     );
