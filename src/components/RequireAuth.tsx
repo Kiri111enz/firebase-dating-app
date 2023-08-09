@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useContext, PropsWithChildren } from 'react';
+import { useRouter } from 'next/router';
 import { Loader } from '@mantine/core';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { AppContext } from 'pages/_app';
-import Auth from './Auth';
-import ProfileEdit from './ProfileEdit';
 
 const RequireAuth: React.FC<PropsWithChildren> = ({ children }) => {
     const { auth, firestore } = useContext(AppContext);
     const [user, loading] = useAuthState(auth);
     const [profileSetUp, setProfileSetUp] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         if (!user)
@@ -24,9 +24,9 @@ const RequireAuth: React.FC<PropsWithChildren> = ({ children }) => {
     if (loading)
         return <Loader className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />;
     if (!user)
-        return <Auth />;
+        void router.push('/auth');
     if (!profileSetUp)
-        return <ProfileEdit />;
+        void router.push('/profile');
     return <>{children}</>;
 };
 
