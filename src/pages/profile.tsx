@@ -1,14 +1,15 @@
 import { useContext, useState, useEffect } from 'react';
 import { Paper, TextInput, Text, Slider, Button, Radio, Group, Autocomplete, FileButton } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { ref, getDownloadURL } from 'firebase/storage';
+import { updateDoc } from 'firebase/firestore';
+import { ref, getDownloadURL, uploadBytes } from 'firebase/storage';
 import cities from 'cities-list';
 import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
-import { ProfileContext } from '../components/RequireAuth';
+import { ProfileContext, Profile } from 'components/RequireAuth';
 
 const Profile: NextPageWithLayout = () => {
     const { storage } = useContext(AppContext);
-    const profile = useContext(ProfileContext);
+    const { profile, profileRef } = useContext(ProfileContext);
     const form = useForm({
         initialValues: profile,
         validate: {
@@ -24,15 +25,24 @@ const Profile: NextPageWithLayout = () => {
     });
     const [photoRef] = useState(ref(storage, form.values.photoPath));
     const [photoURL, setPhotoURL] = useState<string | undefined>(undefined);
+    const [file, setFile] = useState<File | null>(null);
 
     useEffect(() => {
-        if (!photoURL && form.values.photoPath)
+        if (!photoURL)
             getDownloadURL(photoRef).then((url) => setPhotoURL(url)).catch(() => void 0);
     }, [photoURL]);
 
+    const updateProfile = async (values: Profile): Promise<void> => {
+        if (file)
+            await uploadBytes(ref(storage, form.values.photoPath), file);
+        values.setUp = true;
+        await updateDoc(profileRef!, {...values});
+        // todo: show some notification about successful data update
+    };
+
     return (
         <Paper shadow="xs" className="h-fit m-10 py-2 pb-2 px-4 rounded-lg"
-            component="form" onSubmit={form.onSubmit((values) => console.log(values))}>
+            component="form" onSubmit={form.onSubmit((values) => updateProfile(values))}>
             <div className="flex flex-row space-x-4">
                 <div>
                     <Text className="mb-2">Name:</Text>
@@ -61,15 +71,18 @@ const Profile: NextPageWithLayout = () => {
                             src={photoURL} alt="Select an image." />
                     </div>
                     <div className="text-center mt-2">
-                        <FileButton onChange={(file) => setPhotoURL(file ? URL.createObjectURL(file) : undefined)}
-                            accept="image/png,image/jpeg">
+                        <FileButton onChange={(file) => {
+                            setFile(file);
+                            setPhotoURL(file ? URL.createObjectURL(file) : undefined);
+                        }}
+                        accept="image/png,image/jpeg">
                             {(props) => <Button {...props}>Choose image</Button>}
                         </FileButton>
                     </div>
                 </div>
             </div>
 
-            {form.isDirty() &&
+            {(form.isDirty() || file) &&
                 <div className="text-center mt-2">
                     <Button type="submit">Update</Button>
                 </div>

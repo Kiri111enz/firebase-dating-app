@@ -28,8 +28,10 @@ const Auth: NextPage = () => {
                     .then(async (credentials) => {
                         const profileRef = doc(firestore, 'profiles', credentials.user.uid);
                         const profile = (await getDoc(profileRef)).data();
-                        if (!profile)
+                        if (!profile) {
+                            emptyProfile.photoPath = 'photos/' + credentials.user.uid;
                             await setDoc(profileRef, emptyProfile);
+                        }
                         await router.push('/');
                     })
                     .catch(() => void 0)} />

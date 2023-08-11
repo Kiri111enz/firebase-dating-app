@@ -15,7 +15,7 @@ export interface Profile {
     photoPath: string
 }
 
-export const ProfileContext = createContext<Profile>({} as Profile);
+export const ProfileContext = createContext({ profile: {} as Profile, profileRef: null as DocumentReference | null });
 
 const RequireAuth: React.FC<PropsWithChildren> = ({ children }) => {
     const { auth, firestore } = useContext(AppContext);
@@ -35,7 +35,7 @@ const RequireAuth: React.FC<PropsWithChildren> = ({ children }) => {
     else if (!profile.setUp && router.pathname !== '/profile')
         void router.push('/profile');
     else return (
-        <ProfileContext.Provider value={ profile as Profile }>
+        <ProfileContext.Provider value={{ profile: profile as Profile, profileRef }}>
             {children}
         </ProfileContext.Provider>
     );
