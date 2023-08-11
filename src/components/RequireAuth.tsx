@@ -8,6 +8,11 @@ import { AppContext } from 'pages/_app';
 
 export interface Profile {
     setUp: boolean
+    name: string
+    gender: string
+    age: number
+    city: string
+    photoPath: string
 }
 
 export const ProfileContext = createContext<Profile>({} as Profile);

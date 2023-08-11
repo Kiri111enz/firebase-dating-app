@@ -6,12 +6,13 @@ import { MantineProvider } from '@mantine/core';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 import { firebaseConfig } from 'firebaseConfig';
 import RequireAuth from '../components/RequireAuth';
 import Layout from '../components/Layout';
 import 'styles/globals.css';
 
-export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
     getLayout?: (page: ReactElement) => ReactNode
 }
 
@@ -30,8 +31,9 @@ type AppPropsWithLayout = AppProps & {
 const firebase = initializeApp(firebaseConfig);
 const firestore = getFirestore(firebase);
 const auth = getAuth(firebase);
+const storage = getStorage();
 
-export const AppContext = createContext({ firebase, firestore, auth });
+export const AppContext = createContext({ firebase, firestore, auth, storage });
 
 const App: React.FC<AppPropsWithLayout> = ({ Component, pageProps }) => {
     const getLayout = Component.getLayout ?? ((page) => page);
@@ -44,7 +46,7 @@ const App: React.FC<AppPropsWithLayout> = ({ Component, pageProps }) => {
             </Head>
 
             <MantineProvider withGlobalStyles withNormalizeCSS>
-                <AppContext.Provider value={{ firebase, firestore, auth }}>
+                <AppContext.Provider value={{ firebase, firestore, auth, storage }}>
                     {getLayout(<Component {...pageProps} />)}
                 </AppContext.Provider>
             </MantineProvider>

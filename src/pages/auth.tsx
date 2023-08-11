@@ -5,6 +5,16 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import GoogleAuthButton from '../components/GoogleAuthButton';
 import { AppContext } from 'pages/_app';
+import { Profile } from 'components/RequireAuth';
+
+const emptyProfile: Profile = {
+    setUp: false,
+    name: '',
+    gender: 'M',
+    age: 20,
+    city: '',
+    photoPath: ''
+};
 
 const Auth: NextPage = () => {
     const { auth, firestore } = useContext(AppContext);
@@ -16,12 +26,10 @@ const Auth: NextPage = () => {
             <GoogleAuthButton onClick={() => 
                 signInWithPopup(auth, provider)
                     .then(async (credentials) => {
-                        const docRef = doc(firestore, 'profiles', credentials.user.uid);
-                        const snapshot = await getDoc(docRef);
-                        if (!snapshot.data())
-                            await setDoc(docRef, {
-                                setUp: false
-                            });
+                        const profileRef = doc(firestore, 'profiles', credentials.user.uid);
+                        const profile = (await getDoc(profileRef)).data();
+                        if (!profile)
+                            await setDoc(profileRef, emptyProfile);
                         await router.push('/');
                     })
                     .catch(() => void 0)} />

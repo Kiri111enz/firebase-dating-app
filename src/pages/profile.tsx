@@ -1,17 +1,16 @@
+import { useContext, useState, useEffect } from 'react';
 import { Paper, TextInput, Text, Slider, Button, Radio, Group, Autocomplete, FileButton } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { ref, getDownloadURL } from 'firebase/storage';
 import cities from 'cities-list';
-import { NextPageWithLayout, MainPageLayout } from './_app';
+import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
+import { ProfileContext } from '../components/RequireAuth';
 
 const Profile: NextPageWithLayout = () => {
+    const { storage } = useContext(AppContext);
+    const profile = useContext(ProfileContext);
     const form = useForm({
-        initialValues: {
-            name: '',
-            gender: 'M',
-            age: 20,
-            city: '',
-            photo: null as (File | null)
-        },
+        initialValues: profile,
         validate: {
             name: (value) => {
                 if (value.length < 2 || value.length > 16)
@@ -21,9 +20,15 @@ const Profile: NextPageWithLayout = () => {
                 return null;
             }, // @ts-ignore - cities[value] is valid
             city: (value) => cities[value] ? null : 'Incorrect city.',
-            photo: (value) => value ? null : 'Select an image.'
         },
     });
+    const [photoRef] = useState(ref(storage, form.values.photoPath));
+    const [photoURL, setPhotoURL] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        if (!photoURL && form.values.photoPath)
+            getDownloadURL(photoRef).then((url) => setPhotoURL(url)).catch(() => void 0);
+    }, [photoURL]);
 
     return (
         <Paper shadow="xs" className="h-fit m-10 py-2 pb-2 px-4 rounded-lg"
@@ -52,12 +57,12 @@ const Profile: NextPageWithLayout = () => {
                 <div className="flex flex-col">
                     <Text className="mb-2">Photo:</Text>
                     <div className="grow">
-                        <img className={`max-h-[13rem] ${form.getInputProps('photo').error ? 'text-[#fa5252]' : ''}`}
-                            src={form.values.photo ? URL.createObjectURL(form.values.photo) : undefined}
-                            alt="Select an image." />
+                        <img className={`max-h-[13rem] ${photoURL ? '' : 'text-[#fa5252]'}`}
+                            src={photoURL} alt="Select an image." />
                     </div>
                     <div className="text-center mt-2">
-                        <FileButton onChange={file => form.setFieldValue('photo', file)} accept="image/png,image/jpeg">
+                        <FileButton onChange={(file) => setPhotoURL(file ? URL.createObjectURL(file) : undefined)}
+                            accept="image/png,image/jpeg">
                             {(props) => <Button {...props}>Choose image</Button>}
                         </FileButton>
                     </div>
