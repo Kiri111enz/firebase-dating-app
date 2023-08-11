@@ -1,5 +1,6 @@
-import { Paper, TextInput, Text, Slider, Button, Radio, Group, FileButton } from '@mantine/core';
+import { Paper, TextInput, Text, Slider, Button, Radio, Group, Autocomplete, FileButton } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import cities from 'cities-list';
 import { NextPageWithLayout, MainPageLayout } from './_app';
 
 const Profile: NextPageWithLayout = () => {
@@ -9,7 +10,7 @@ const Profile: NextPageWithLayout = () => {
             gender: 'M',
             age: 20,
             city: '',
-            image: null as (File | null)
+            photo: null as (File | null)
         },
         validate: {
             name: (value) => {
@@ -18,9 +19,9 @@ const Profile: NextPageWithLayout = () => {
                 if (value.includes(' '))
                     return 'Name should not contain whitespaces.';
                 return null;
-            },
-            city: (value) => value ? null : 'Choose your city, please.',
-            image: (value) => value ? null : 'Choose an image, please.'
+            }, // @ts-ignore - cities[value] is valid
+            city: (value) => cities[value] ? null : 'Incorrect city.',
+            photo: (value) => value ? null : 'Select an image.'
         },
     });
 
@@ -44,18 +45,19 @@ const Profile: NextPageWithLayout = () => {
                     <Slider className="m-2" {...form.getInputProps('age')}/>
 
                     <Text className="mt-4 mb-2">City:</Text>
-                    <TextInput {...form.getInputProps('city')} />
+                    <Autocomplete placeholder="Start typing..." data={Object.keys(cities)}
+                        {...form.getInputProps('city')} />
                 </div>
 
                 <div className="flex flex-col">
                     <Text className="mb-2">Photo:</Text>
                     <div className="grow">
-                        <img className={`max-h-[13rem] ${form.getInputProps('image').error ? 'text-[#fa5252]' : ''}`}
-                            src={form.values.image ? URL.createObjectURL(form.values.image) : undefined}
+                        <img className={`max-h-[13rem] ${form.getInputProps('photo').error ? 'text-[#fa5252]' : ''}`}
+                            src={form.values.photo ? URL.createObjectURL(form.values.photo) : undefined}
                             alt="Select an image." />
                     </div>
                     <div className="text-center mt-2">
-                        <FileButton onChange={file => form.setFieldValue('image', file)} accept="image/png,image/jpeg">
+                        <FileButton onChange={file => form.setFieldValue('photo', file)} accept="image/png,image/jpeg">
                             {(props) => <Button {...props}>Choose image</Button>}
                         </FileButton>
                     </div>

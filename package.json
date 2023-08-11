@@ -14,6 +14,7 @@
     "@mantine/core": "^6.0.17",
     "@mantine/form": "^6.0.18",
     "@mantine/next": "^6.0.17",
+    "cities-list": "^1.0.3",
     "firebase": "^10.1.0",
     "next": "13.4.12",
     "react": "18.2.0",
