@@ -1,9 +1,11 @@
-import React, { PropsWithChildren} from 'react';
+import React, { PropsWithChildren } from 'react';
 import Footer from './Footer';
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => (
-    <div className="absolute left-1/2 -translate-x-1/2 h-screen w-screen text-center">
-        <main>{children}</main>
+    <div className="flex flex-col h-screen">
+        <main className="grow flex items-center justify-center">
+            {children}
+        </main>
         <Footer />
     </div>
 );

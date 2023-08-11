@@ -16,11 +16,11 @@ const Auth: NextPage = () => {
             <GoogleAuthButton onClick={() => 
                 signInWithPopup(auth, provider)
                     .then(async (credentials) => {
-                        const docRef = doc(firestore, 'users', credentials.user.uid);
+                        const docRef = doc(firestore, 'profiles', credentials.user.uid);
                         const snapshot = await getDoc(docRef);
                         if (!snapshot.data())
                             await setDoc(docRef, {
-                                profileSetUp: false
+                                setUp: false
                             });
                         await router.push('/');
                     })

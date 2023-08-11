@@ -12,6 +12,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/server": "^11.11.0",
     "@mantine/core": "^6.0.17",
+    "@mantine/form": "^6.0.18",
     "@mantine/next": "^6.0.17",
     "firebase": "^10.1.0",
     "next": "13.4.12",
