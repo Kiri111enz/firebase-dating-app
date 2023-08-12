@@ -7,14 +7,14 @@ import GoogleAuthButton from '../components/GoogleAuthButton';
 import { AppContext } from 'pages/_app';
 import { Profile } from 'components/RequireAuth';
 
-const emptyProfile: Profile = {
+const getEmptyProfile = (photoPath: string): Profile => ({
     setUp: false,
     name: '',
     gender: 'M',
     age: 20,
     city: '',
-    photoPath: ''
-};
+    photoPath
+});
 
 const Auth: NextPage = () => {
     const { auth, firestore } = useContext(AppContext);
@@ -28,10 +28,8 @@ const Auth: NextPage = () => {
                     .then(async (credentials) => {
                         const profileRef = doc(firestore, 'profiles', credentials.user.uid);
                         const profile = (await getDoc(profileRef)).data();
-                        if (!profile) {
-                            emptyProfile.photoPath = 'photos/' + credentials.user.uid;
-                            await setDoc(profileRef, emptyProfile);
-                        }
+                        if (!profile)
+                            await setDoc(profileRef, getEmptyProfile('photos/' + credentials.user.uid));
                         await router.push('/');
                     })
                     .catch(() => void 0)} />

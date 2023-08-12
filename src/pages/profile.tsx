@@ -1,14 +1,28 @@
 import { useContext, useState, useEffect } from 'react';
 import { Paper, TextInput, Text, Slider, Button, Radio, Group, Autocomplete, FileButton, Loader } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { updateDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc } from 'firebase/firestore';
 import { ref, getDownloadURL, uploadBytes } from 'firebase/storage';
 import cities from 'cities-list';
 import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
 import { ProfileContext, Profile } from 'components/RequireAuth';
 
+export interface Filter {
+    gender: string
+    minAge: number
+    maxAge: number
+    city: string
+}
+
+const getDefaultFilter = (profile: Profile): Filter => ({
+    gender: profile.gender === 'M' ? 'F' : 'M',
+    minAge: profile.age - 5,
+    maxAge: profile.age + 5,
+    city: profile.city
+});
+
 const Profile: NextPageWithLayout = () => {
-    const { storage } = useContext(AppContext);
+    const { auth, firestore, storage } = useContext(AppContext);
     const { profile, profileRef } = useContext(ProfileContext);
     const form = useForm({
         initialValues: profile,
@@ -37,7 +51,10 @@ const Profile: NextPageWithLayout = () => {
         setUploading(true);
         if (file)
             await uploadBytes(ref(storage, form.values.photoPath), file);
-        values.setUp = true;
+        if (!values.setUp) {
+            values.setUp = true;
+            await setDoc(doc(firestore, 'filters', auth.currentUser!.uid), getDefaultFilter(values));
+        }
         await updateDoc(profileRef!, {...values});
         window.location.reload();
     };
