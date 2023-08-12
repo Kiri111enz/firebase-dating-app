@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
-import { Paper, TextInput, Text, Slider, Button, Radio, Group, Autocomplete, FileButton } from '@mantine/core';
+import { Paper, TextInput, Text, Slider, Button, Radio, Group, Autocomplete, FileButton, Loader } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { updateDoc } from 'firebase/firestore';
 import { ref, getDownloadURL, uploadBytes } from 'firebase/storage';
@@ -26,6 +26,7 @@ const Profile: NextPageWithLayout = () => {
     const [photoRef] = useState(ref(storage, form.values.photoPath));
     const [photoURL, setPhotoURL] = useState<string | undefined>(undefined);
     const [file, setFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         if (!photoURL)
@@ -33,12 +34,16 @@ const Profile: NextPageWithLayout = () => {
     }, [photoURL]);
 
     const updateProfile = async (values: Profile): Promise<void> => {
+        setUploading(true);
         if (file)
             await uploadBytes(ref(storage, form.values.photoPath), file);
         values.setUp = true;
         await updateDoc(profileRef!, {...values});
-        // todo: show some notification about successful data update
+        window.location.reload();
     };
+
+    if (uploading)
+        return <Loader />;
 
     return (
         <Paper shadow="xs" className="h-fit m-10 py-2 pb-2 px-4 rounded-lg"
