@@ -1,10 +1,11 @@
 import { useContext, useEffect } from 'react';
 import { collection, query, where, doc, getDoc, getDocs } from 'firebase/firestore';
 import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
+import ProfileCard from 'components/ProfileCard';
 import { Filter } from 'stores/FilterStore';
 
 const Feed: NextPageWithLayout = () => {
-    const { auth, firestore } = useContext(AppContext);
+    const { auth, firestore, profileStore: { profile } } = useContext(AppContext);
 
     useEffect(() => {
         getDoc(doc(firestore, 'filters', auth.currentUser!.uid))
@@ -22,7 +23,7 @@ const Feed: NextPageWithLayout = () => {
     }, []);
 
     return (
-        <>Feed page</>
+        <ProfileCard maxH="25rem" maxW="40rem" profile={profile!} />
     );
 };
 
