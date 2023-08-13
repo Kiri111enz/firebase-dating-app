@@ -1,31 +1,16 @@
 import { useContext, useState, useEffect } from 'react';
 import { Paper, TextInput, Text, Slider, Button, Radio, Group, Autocomplete, FileButton, Loader } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
-import { ref, getDownloadURL, uploadBytes } from 'firebase/storage';
+import { ref, getDownloadURL } from 'firebase/storage';
+import { observer } from 'mobx-react-lite';
 import cities from 'cities-list';
 import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
-import { ProfileContext, Profile } from 'components/RequireAuth';
+import { Profile } from 'stores/ProfileStore';
 
-export interface Filter {
-    gender: string
-    minAge: number
-    maxAge: number
-    city: string
-}
-
-const getDefaultFilter = (profile: Profile): Filter => ({
-    gender: profile.gender === 'M' ? 'F' : 'M',
-    minAge: profile.age - 5,
-    maxAge: profile.age + 5,
-    city: profile.city
-});
-
-const Profile: NextPageWithLayout = () => {
-    const { auth, firestore, storage } = useContext(AppContext);
-    const { profile, profileRef } = useContext(ProfileContext);
+const Profile: NextPageWithLayout = observer(() => {
+    const { storage, profileStore } = useContext(AppContext);
     const form = useForm({
-        initialValues: profile,
+        initialValues: {...profileStore.profile!},
         validate: {
             name: (value) => {
                 if (value.length < 2 || value.length > 16)
@@ -37,7 +22,7 @@ const Profile: NextPageWithLayout = () => {
             city: (value) => cities[value] ? null : 'Incorrect city.',
         },
     });
-    const [photoRef] = useState(ref(storage, form.values.photoPath));
+    const [photoRef] = useState(ref(storage, profileStore.profile!.photoPath));
     const [photoURL, setPhotoURL] = useState<string | undefined>(undefined);
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
@@ -47,19 +32,13 @@ const Profile: NextPageWithLayout = () => {
             getDownloadURL(photoRef).then((url) => setPhotoURL(url)).catch(() => void 0);
     }, [photoURL]);
 
-    const updateProfile = async (values: Profile): Promise<void> => {
+    const updateProfile = async (newProfile: Profile): Promise<void> => {
         setUploading(true);
-        if (file)
-            await uploadBytes(ref(storage, form.values.photoPath), file);
-        if (!values.setUp) {
-            values.setUp = true;
-            await setDoc(doc(firestore, 'filters', auth.currentUser!.uid), getDefaultFilter(values));
-        }
-        await updateDoc(profileRef!, {...values});
+        await profileStore.updateProfile(newProfile, file);
         window.location.reload();
     };
 
-    if (uploading)
+    if (uploading || (profileStore.profile!.setUp && !photoURL))
         return <Loader />;
 
     return (
@@ -111,7 +90,7 @@ const Profile: NextPageWithLayout = () => {
             }
         </Paper>
     );
-};
+});
 
 Profile.getLayout = MainPageLayout;
 

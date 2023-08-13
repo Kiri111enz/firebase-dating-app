@@ -1,15 +1,11 @@
-import React, { ReactElement, ReactNode, createContext } from 'react';
-import { NextPage} from 'next';
+import React, { createContext, ReactElement, ReactNode } from 'react';
+import { NextPage } from 'next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { MantineProvider } from '@mantine/core';
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
-import { firebaseConfig } from 'firebaseConfig';
-import RequireAuth from '../components/RequireAuth';
-import Layout from '../components/Layout';
+import RequireAuth from 'components/RequireAuth';
+import Layout from 'components/Layout';
+import AppStore from 'stores/AppStore';
 import 'styles/globals.css';
 
 export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
@@ -28,12 +24,8 @@ type AppPropsWithLayout = AppProps & {
     Component: NextPageWithLayout
 }
 
-const firebase = initializeApp(firebaseConfig);
-const firestore = getFirestore(firebase);
-const auth = getAuth(firebase);
-const storage = getStorage();
-
-export const AppContext = createContext({ firebase, firestore, auth, storage });
+export const AppContext = createContext({} as AppStore);
+const appStore = new AppStore();
 
 const App: React.FC<AppPropsWithLayout> = ({ Component, pageProps }) => {
     const getLayout = Component.getLayout ?? ((page) => page);
@@ -46,7 +38,7 @@ const App: React.FC<AppPropsWithLayout> = ({ Component, pageProps }) => {
             </Head>
 
             <MantineProvider withGlobalStyles withNormalizeCSS>
-                <AppContext.Provider value={{ firebase, firestore, auth, storage }}>
+                <AppContext.Provider value={appStore}>
                     {getLayout(<Component {...pageProps} />)}
                 </AppContext.Provider>
             </MantineProvider>

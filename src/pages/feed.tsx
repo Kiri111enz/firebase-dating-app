@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { collection, query, where, doc, getDoc, getDocs } from 'firebase/firestore';
 import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
-import { Filter } from './profile';
+import { Filter } from 'stores/FilterStore';
 
 const Feed: NextPageWithLayout = () => {
     const { auth, firestore } = useContext(AppContext);
