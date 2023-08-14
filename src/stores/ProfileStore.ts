@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc, onSnapshot, DocumentReference, Unsubscribe } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, DocumentReference } from 'firebase/firestore';
 import { ref, uploadBytes } from 'firebase/storage';
 import { makeAutoObservable, runInAction } from 'mobx';
 import AppStore from './AppStore';
@@ -24,13 +24,9 @@ const getEmptyProfile = (photoPath: string): Profile => ({
 export default class ProfileStore {
     private _profile: Profile | null = null;
     private ref: DocumentReference | null = null;
-    private unsubscribe: Unsubscribe | null = null;
 
     constructor(private appStore: AppStore) {
         this.appStore.auth.onAuthStateChanged(async (user) => {
-            if (this.unsubscribe !== null)
-                this.unsubscribe();
-
             if (user) {
                 this.ref = doc(this.appStore.firestore, 'profiles', user.uid);
                 const profile = (await getDoc(this.ref)).data() as Profile;
@@ -39,13 +35,10 @@ export default class ProfileStore {
                     runInAction(() => this._profile = getEmptyProfile('photos/' + user.uid));
                     await setDoc(this.ref, this._profile);
                 }
-                this.unsubscribe = onSnapshot(this.ref,
-                    (snapshot) => runInAction(() => this._profile = snapshot.data() as Profile));
             }
             else {
                 runInAction(() => this._profile = null);
                 this.ref = null;
-                this.unsubscribe = null;
             }
         });
         makeAutoObservable(this, {}, { autoBind: true });
@@ -58,7 +51,7 @@ export default class ProfileStore {
         this._profile = newProfile;
         if (photo)
             await uploadBytes(ref(this.appStore.storage, this._profile.photoPath), photo);
-        await this.appStore.filterStore.createDefaultFilter();
+        await this.appStore.filterStore.setDefaultFilter();
         await updateDoc(this.ref!, {...this._profile});
     }
 }

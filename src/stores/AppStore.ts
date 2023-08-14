@@ -21,7 +21,7 @@ export default class AppStore {
         this.auth = getAuth(this.firebase);
         this.storage = getStorage();
 
-        this.profileStore = new ProfileStore(this);
         this.filterStore = new FilterStore(this);
+        this.profileStore = new ProfileStore(this);
     }
 }

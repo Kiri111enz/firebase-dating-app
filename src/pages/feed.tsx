@@ -7,7 +7,7 @@ import ProfileCard from 'components/ProfileCard';
 import { Profile } from 'stores/ProfileStore';
 
 const Feed: NextPageWithLayout = () => {
-    const { firestore, filterStore } = useContext(AppContext);
+    const { firestore, filterStore: { filter } } = useContext(AppContext);
     const [candidates, setCandidates] = useState<Profile[] | null>(null);
     const [candidateIndex, setCandidateIndex] = useState(0);
     const [scope, animate] = useAnimate();
@@ -19,16 +19,14 @@ const Feed: NextPageWithLayout = () => {
     };
 
     useEffect(() => {
-        filterStore.getFilter().then((filter) => {
-            getDocs(query(collection(firestore, 'profiles'),
-                where('gender', '==', filter!.gender),
-                where('age', '<=', filter!.maxAge),
-                where('age', '>=', filter!.minAge),
-                where('city', '==', filter!.city))
-            ).then((querySnapshot) => setCandidates(
-                querySnapshot.docs.map((docSnapshot) => docSnapshot.data() as Profile))
-            );
-        });
+        getDocs(query(collection(firestore, 'profiles'),
+            where('gender', '==', filter!.gender),
+            where('age', '<=', filter!.maxAge),
+            where('age', '>=', filter!.minAge),
+            where('city', '==', filter!.city))
+        ).then((querySnapshot) => setCandidates(
+            querySnapshot.docs.map((docSnapshot) => docSnapshot.data() as Profile))
+        );
     }, []);
 
     if (candidates === null)
