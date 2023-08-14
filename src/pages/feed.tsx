@@ -1,29 +1,39 @@
-import { useContext, useEffect } from 'react';
-import { collection, query, where, doc, getDoc, getDocs } from 'firebase/firestore';
+import { useContext, useState, useEffect } from 'react';
+import { Loader, Text } from '@mantine/core';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
 import ProfileCard from 'components/ProfileCard';
-import { Filter } from 'stores/FilterStore';
+import { Profile } from 'stores/ProfileStore';
 
 const Feed: NextPageWithLayout = () => {
-    const { auth, firestore, profileStore: { profile } } = useContext(AppContext);
+    const { firestore, filterStore } = useContext(AppContext);
+    const [candidates, setCandidates] = useState<Profile[]>(new Array(0));
+    const [candidateIndex, setCandidateIndex] = useState(0);
 
     useEffect(() => {
-        getDoc(doc(firestore, 'filters', auth.currentUser!.uid))
-            .then((snapshot) => {
-                const filter = snapshot.data() as Filter;
-                getDocs(query(collection(firestore, 'profiles'),
-                    where('gender', '==', filter.gender),
-                    where('age', '<=', filter.maxAge),
-                    where('age', '>=', filter.minAge),
-                    where('city', '==', filter.city))
-                ).then((querySnapshot) => querySnapshot.forEach((doc) => {
-                    console.log(doc.data());
-                }));
-            });
+        filterStore.getFilter().then((filter) => {
+            getDocs(query(collection(firestore, 'profiles'),
+                where('gender', '==', filter!.gender),
+                where('age', '<=', filter!.maxAge),
+                where('age', '>=', filter!.minAge),
+                where('city', '==', filter!.city))
+            ).then((querySnapshot) => setCandidates(
+                querySnapshot.docs.map((docSnapshot) => docSnapshot.data() as Profile))
+            );
+        });
     }, []);
 
+    if (!candidates.length)
+        return <Loader />;
+
+    if (candidateIndex >= candidates.length)
+        return <Text>Sorry, no new candidates for you...</Text>;
+
     return (
-        <ProfileCard maxH="25rem" maxW="40rem" profile={profile!} />
+        <ProfileCard imgClassName='max-h-[25rem] max-w-[40rem]'
+            profile={candidates[candidateIndex]}
+            onLike={() => setCandidateIndex(candidateIndex + 1)}
+            onPass={() => setCandidateIndex(candidateIndex + 1)} />
     );
 };
 
