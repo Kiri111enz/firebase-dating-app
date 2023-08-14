@@ -6,12 +6,13 @@ import { Profile } from 'stores/ProfileStore';
 
 interface ProfileCardProps {
     imgClassName?: string
+    imgOnLoad?: () => void
     profile: Profile
     onLike?: () => void
     onPass?: () => void
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ imgClassName, profile, onLike, onPass }) => {
+const ProfileCard: React.FC<ProfileCardProps> = ({ imgClassName, imgOnLoad, profile, onLike, onPass }) => {
     const { storage } = useContext(AppContext);
     const [photoURL, setPhotoURL] = useState<string | undefined>(undefined);
 
@@ -24,7 +25,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ imgClassName, profile, onLike
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Card.Section>
-                <img className={imgClassName} src={photoURL} alt="Idi nahui" />
+                <img className={imgClassName} src={photoURL} alt="" onLoad={imgOnLoad}/>
             </Card.Section>
             <Card.Section>
                 <Text className="m-2 text-xl font-semibold">{`${profile.name}, ${profile.age}`}</Text>
