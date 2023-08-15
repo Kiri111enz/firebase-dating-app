@@ -5,12 +5,12 @@ import { ref, getDownloadURL } from 'firebase/storage';
 import { observer } from 'mobx-react-lite';
 import cities from 'cities-list';
 import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
-import { Profile } from 'stores/ProfileStore';
+import { Profile } from 'stores/UserStore';
 
 const Profile: NextPageWithLayout = observer(() => {
-    const { storage, profileStore } = useContext(AppContext);
+    const { storage, userStore } = useContext(AppContext);
     const form = useForm({
-        initialValues: {...profileStore.profile!},
+        initialValues: {...userStore.user!.profile},
         validate: {
             name: (value) => {
                 if (value.length < 2 || value.length > 16)
@@ -22,7 +22,7 @@ const Profile: NextPageWithLayout = observer(() => {
             city: (value) => cities[value] ? null : 'Incorrect city.',
         },
     });
-    const [photoRef] = useState(ref(storage, profileStore.profile!.photoPath));
+    const [photoRef] = useState(ref(storage, userStore.user!.profile.photoPath));
     const [photoURL, setPhotoURL] = useState<string | undefined>(undefined);
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
@@ -34,11 +34,11 @@ const Profile: NextPageWithLayout = observer(() => {
 
     const updateProfile = async (newProfile: Profile): Promise<void> => {
         setUploading(true);
-        await profileStore.updateProfile(newProfile, file);
+        await userStore.updateProfile(newProfile, file);
         window.location.reload();
     };
 
-    if (uploading || (profileStore.profile!.setUp && !photoURL))
+    if (uploading || (userStore.user!.profile.setUp && !photoURL))
         return <Loader />;
 
     return (

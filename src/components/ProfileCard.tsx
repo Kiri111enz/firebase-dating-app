@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Card, Text, Button } from '@mantine/core';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { AppContext } from 'pages/_app';
-import { Profile } from 'stores/ProfileStore';
+import { Profile } from 'stores/UserStore';
 
 interface ProfileCardProps {
     imgClassName?: string

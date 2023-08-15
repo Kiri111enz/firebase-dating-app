@@ -6,15 +6,15 @@ import { observer } from 'mobx-react-lite';
 import { AppContext } from 'pages/_app';
 
 const RequireAuth: React.FC<PropsWithChildren> = observer(({ children }) => {
-    const { auth, profileStore: { profile } } = useContext(AppContext);
+    const { auth, userStore } = useContext(AppContext);
     const [user, userLoading] = useAuthState(auth);
     const router = useRouter();
 
     if (!user && !userLoading)
         void router.push('/auth');
-    else if (userLoading || !profile)
+    else if (userLoading || !userStore.user)
         return <Loader className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />;
-    else if (!profile.setUp && router.pathname !== '/profile')
+    else if (!userStore.user!.profile.setUp && router.pathname !== '/profile')
         void router.push('/profile');
     else return <>{children}</>;
 });
