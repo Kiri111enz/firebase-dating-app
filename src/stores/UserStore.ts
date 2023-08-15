@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc, arrayUnion, DocumentReference } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, DocumentReference } from 'firebase/firestore';
 import { ref, uploadBytes } from 'firebase/storage';
 import { makeAutoObservable, runInAction } from 'mobx';
 import AppStore from './AppStore';
@@ -30,6 +30,8 @@ export interface User {
     filter: Filter
     activity: Activity
 }
+
+export enum Choice { Like, Pass }
 
 const getEmptyUser = (uid: string): User => ({
     uid,
@@ -80,22 +82,16 @@ export default class UserStore {
         await updateDoc(this.ref!, { profile: newProfile, filter: newFilter });
     }
 
-    public async like(candidate: User): Promise<void> {
+    public async markAsWatched(candidate: User, choice: Choice): Promise<void> {
         if (!this.ref)
             throw new Error('Tried to modify activity without authentication.');
 
+        this._user!.activity.watched.push(candidate.uid);
+        if (choice === Choice.Like)
+            this._user!.activity.liked.push(candidate.uid);
         await updateDoc(this.ref, { activity: {
-            watched: arrayUnion(candidate.uid),
-            liked: arrayUnion(candidate.uid)
-        }});
-    }
-
-    public async pass(candidate: User): Promise<void> {
-        if (!this.ref)
-            throw new Error('Tried to modify activity without authentication.');
-
-        await updateDoc(this.ref, { activity: {
-            watched: arrayUnion(candidate.uid)
+            watched: this._user!.activity.watched,
+            liked: this._user!.activity.liked
         }});
     }
 }

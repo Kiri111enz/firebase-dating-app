@@ -14,7 +14,7 @@ const RequireAuth: React.FC<PropsWithChildren> = observer(({ children }) => {
         void router.push('/auth');
     else if (userLoading || !userStore.user)
         return <Loader className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />;
-    else if (!userStore.user!.profile.setUp && router.pathname !== '/profile')
+    else if (!userStore.user.profile.setUp && router.pathname !== '/profile')
         void router.push('/profile');
     else return <>{children}</>;
 });

@@ -5,7 +5,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { observer } from 'mobx-react-lite';
 import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
 import ProfileCard from 'components/ProfileCard';
-import { User } from 'stores/UserStore';
+import { User, Choice } from 'stores/UserStore';
 
 const Feed: NextPageWithLayout = observer(() => {
     const { firestore, userStore } = useContext(AppContext);
@@ -13,9 +13,10 @@ const Feed: NextPageWithLayout = observer(() => {
     const [candidateIndex, setCandidateIndex] = useState(0);
     const [scope, animate] = useAnimate();
 
-    const nextCandidate = async (): Promise<void> => {
+    const nextCandidate = async (choice: Choice): Promise<void> => {
         await animate(scope.current, { y: +100, opacity: 0 }, { duration: 0.3 });
         await animate(scope.current, { y: -100 }, { duration: 0 });
+        await userStore.markAsWatched(candidates![candidateIndex], choice);
         setCandidateIndex(candidateIndex + 1);
     };
 
@@ -44,16 +45,8 @@ const Feed: NextPageWithLayout = observer(() => {
             <ProfileCard imgClassName='max-h-[25rem] max-w-[40rem]' imgOnLoad={() =>
                 animate(scope.current, { y: 0, opacity: 1 }, { duration: 0.5 })}
             profile={candidates[candidateIndex].profile}
-            onLike={async () => {
-                const candidate = candidates[candidateIndex];
-                await nextCandidate();
-                await userStore.like(candidate);
-            }}
-            onPass={async () => {
-                const candidate = candidates[candidateIndex];
-                await nextCandidate();
-                await userStore.pass(candidate);
-            }} />
+            onLike={async () => await nextCandidate(Choice.Like)}
+            onPass={async () => await nextCandidate(Choice.Pass)} />
         </div>
     );
 });
