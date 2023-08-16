@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { Paper, TextInput, Text, Slider, Button, Radio, Group, Autocomplete, FileButton, Loader } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { signOut } from '@firebase/auth';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { observer } from 'mobx-react-lite';
 import cities from 'cities-list';
@@ -8,7 +9,7 @@ import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
 import { Profile } from 'stores/UserStore';
 
 const Profile: NextPageWithLayout = observer(() => {
-    const { storage, userStore } = useContext(AppContext);
+    const { auth, storage, userStore } = useContext(AppContext);
     const form = useForm({
         initialValues: {...userStore.user!.profile},
         validate: {
@@ -42,53 +43,59 @@ const Profile: NextPageWithLayout = observer(() => {
         return <Loader />;
 
     return (
-        <Paper shadow="xs" className="h-fit m-10 py-2 pb-2 px-4 rounded-lg"
-            component="form" onSubmit={form.onSubmit((values) => updateProfile(values))}>
-            <div className="flex flex-row space-x-4">
-                <div>
-                    <Text className="mb-2">Name:</Text>
-                    <TextInput {...form.getInputProps('name')} />
+        <>
+            <Paper shadow="xs" className="h-fit m-10 py-2 pb-2 px-4 rounded-lg"
+                component="form" onSubmit={form.onSubmit((values) => updateProfile(values))}>
+                <div className="flex flex-row space-x-4">
+                    <div>
+                        <Text className="mb-2">Name:</Text>
+                        <TextInput {...form.getInputProps('name')} />
 
-                    <Text className="mt-4 mb-2">Gender:</Text>
-                    <Radio.Group {...form.getInputProps('gender')}>
-                        <Group>
-                            <Radio value="M" label="Male" />
-                            <Radio value="F" label="Female" />
-                        </Group>
-                    </Radio.Group>
+                        <Text className="mt-4 mb-2">Gender:</Text>
+                        <Radio.Group {...form.getInputProps('gender')}>
+                            <Group>
+                                <Radio value="M" label="Male" />
+                                <Radio value="F" label="Female" />
+                            </Group>
+                        </Radio.Group>
 
-                    <Text className="mt-4 mb-2">Age: {form.values.age}</Text>
-                    <Slider className="m-2" {...form.getInputProps('age')}/>
+                        <Text className="mt-4 mb-2">Age: {form.values.age}</Text>
+                        <Slider className="m-2" {...form.getInputProps('age')}/>
 
-                    <Text className="mt-4 mb-2">City:</Text>
-                    <Autocomplete placeholder="Start typing..." data={Object.keys(cities)}
-                        {...form.getInputProps('city')} />
+                        <Text className="mt-4 mb-2">City:</Text>
+                        <Autocomplete placeholder="Start typing..." data={Object.keys(cities)}
+                            {...form.getInputProps('city')} />
+                    </div>
+
+                    <div className="flex flex-col">
+                        <Text className="mb-2">Photo:</Text>
+                        <div className="grow">
+                            <img className={`max-h-[13rem] ${photoURL ? '' : 'text-[#fa5252]'}`}
+                                src={photoURL} alt="Select an image." />
+                        </div>
+                        <div className="text-center mt-2">
+                            <FileButton onChange={(file) => {
+                                setFile(file);
+                                setPhotoURL(file ? URL.createObjectURL(file) : undefined);
+                            }}
+                            accept="image/png,image/jpeg">
+                                {(props) => <Button {...props}>Choose image</Button>}
+                            </FileButton>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="flex flex-col">
-                    <Text className="mb-2">Photo:</Text>
-                    <div className="grow">
-                        <img className={`max-h-[13rem] ${photoURL ? '' : 'text-[#fa5252]'}`}
-                            src={photoURL} alt="Select an image." />
-                    </div>
+                {(form.isDirty() || file) &&
                     <div className="text-center mt-2">
-                        <FileButton onChange={(file) => {
-                            setFile(file);
-                            setPhotoURL(file ? URL.createObjectURL(file) : undefined);
-                        }}
-                        accept="image/png,image/jpeg">
-                            {(props) => <Button {...props}>Choose image</Button>}
-                        </FileButton>
+                        <Button type="submit">Update</Button>
                     </div>
-                </div>
-            </div>
+                }
+            </Paper>
 
-            {(form.isDirty() || file) &&
-                <div className="text-center mt-2">
-                    <Button type="submit">Update</Button>
-                </div>
-            }
-        </Paper>
+            <div className="absolute z-1 top-1">
+                <Button onClick={() => signOut(auth)}>Sign out</Button>
+            </div>
+        </>
     );
 });
 
