@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
-import { Paper, TextInput, Text, Slider, Button, Radio, Group, Autocomplete, FileButton, Loader } from '@mantine/core';
+import { Paper, TextInput, Text, Slider, Button, Radio, Group,
+    Autocomplete, Textarea, FileButton, Loader } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { signOut } from '@firebase/auth';
 import { ref, getDownloadURL } from 'firebase/storage';
@@ -77,13 +78,15 @@ const Profile: NextPageWithLayout = observer(() => {
                             <FileButton onChange={(file) => {
                                 setFile(file);
                                 setPhotoURL(file ? URL.createObjectURL(file) : undefined);
-                            }}
-                            accept="image/png,image/jpeg">
+                            }} accept="image/png,image/jpeg">
                                 {(props) => <Button {...props}>Choose image</Button>}
                             </FileButton>
                         </div>
                     </div>
                 </div>
+
+                <Text className="mt-4 mb-2">Info (optional):</Text>
+                <Textarea placeholder="Write something about yourself..." {...form.getInputProps('info')} />
 
                 {(form.isDirty() || file) &&
                     <div className="text-center mt-2">

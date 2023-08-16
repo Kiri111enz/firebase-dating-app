@@ -9,6 +9,7 @@ export interface Profile {
     gender: string
     age: number
     city: string
+    info: string
     photoPath: string
 }
 
@@ -35,7 +36,7 @@ export enum Choice { Like, Pass }
 
 const getEmptyUser = (uid: string): User => ({
     uid,
-    profile: { setUp: false, name: '', gender: 'M', age: 20, city: '', photoPath: 'photos/' + uid },
+    profile: { setUp: false, name: '', gender: 'M', age: 20, city: '', info: '', photoPath: 'photos/' + uid },
     filter: { genders: ['F', 'M'], minAge: 0, maxAge: 100, city: 'Moscow' },
     activity: { watched: [], liked: [] }
 });

@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Card, Text, Button } from '@mantine/core';
+import { Card, ScrollArea, Text, Button } from '@mantine/core';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { AppContext } from 'pages/_app';
 import { Profile } from 'stores/UserStore';
@@ -29,6 +29,11 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ imgClassName, imgOnLoad, prof
             </Card.Section>
             <Card.Section>
                 <Text className="m-2 text-xl font-semibold">{`${profile.name}, ${profile.age}`}</Text>
+                {profile.info &&
+                    <ScrollArea mah="5rem">
+                        <Text className="table-caption m-2 mt-0">{profile.info}</Text>
+                    </ScrollArea>
+                }
             </Card.Section>
             <Card.Section>
                 <Button.Group>
