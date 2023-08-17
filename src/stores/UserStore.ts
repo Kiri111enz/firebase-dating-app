@@ -88,11 +88,19 @@ export default class UserStore {
             throw new Error('Tried to modify activity without authentication.');
 
         this._user!.activity.watched.push(candidate.uid);
-        if (choice === Choice.Like)
+        if (choice === Choice.Like) {
             this._user!.activity.liked.push(candidate.uid);
+            if (candidate.activity.liked.includes(this._user!.uid))
+                await this.appStore.chatsStore.createChat([this._user!, candidate]);
+        }
         await updateDoc(this.ref, { activity: {
             watched: this._user!.activity.watched,
             liked: this._user!.activity.liked
         }});
+    }
+
+    public async getByUid(uid: string): Promise<User> {
+        return getDoc(doc(this.appStore.firestore, 'users', uid))
+            .then((docSnapshot) => docSnapshot.data() as User);
     }
 }

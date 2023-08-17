@@ -1,7 +1,7 @@
-import { useContext, useState, useEffect} from 'react';
+import { useContext, useState, useEffect } from 'react';
+import { ref, getDownloadURL } from 'firebase/storage';
 import { AppContext } from 'pages/_app';
 import { Profile } from 'stores/UserStore';
-import { getDownloadURL, ref } from 'firebase/storage';
 
 const usePhotoURL = (profile: Profile): string | undefined => {
     const { storage } = useContext(AppContext);
