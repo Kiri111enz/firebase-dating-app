@@ -4,12 +4,12 @@ import { SegmentedControl } from '@mantine/core';
 import { observer } from 'mobx-react-lite';
 import { AppContext } from 'pages/_app';
 
-const Footer: React.FC = observer(() => {
+const Footer: React.FC<{ className?: string }> = observer(({ className }) => {
     const { userStore: { user } } = useContext(AppContext);
     const router = useRouter();
 
     return (
-        <SegmentedControl style={{ position: 'sticky' }} className="top-[100vh]" fullWidth
+        <SegmentedControl style={{ position: 'sticky' }} className={`top-[100vh] ${className}`} fullWidth
             value={router.pathname.substring(1)} onChange={(value) => router.push(value)} data={[
                 { value: 'feed', label: 'Feed', disabled: !user!.profile.setUp },
                 { value: 'likes', label: 'Likes', disabled: !user!.profile.setUp },

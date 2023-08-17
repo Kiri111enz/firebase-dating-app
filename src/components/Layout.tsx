@@ -3,10 +3,10 @@ import Footer from './Footer';
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => (
     <div className="flex flex-col h-screen">
-        <main className="grow flex items-center justify-center">
+        <main className="grow overflow-auto flex items-center justify-center">
             {children}
         </main>
-        <Footer />
+        <Footer className="shrink-0" />
     </div>
 );
 
