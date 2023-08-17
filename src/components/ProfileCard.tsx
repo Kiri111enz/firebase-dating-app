@@ -1,8 +1,7 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React from 'react';
 import { Card, ScrollArea, Text, Button } from '@mantine/core';
-import { ref, getDownloadURL } from 'firebase/storage';
-import { AppContext } from 'pages/_app';
 import { Profile } from 'stores/UserStore';
+import usePhotoURL from 'hooks/usePhotoURL';
 
 interface ProfileCardProps {
     imgClassName?: string
@@ -13,14 +12,7 @@ interface ProfileCardProps {
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ imgClassName, imgOnLoad, profile, onLike, onPass }) => {
-    const { storage } = useContext(AppContext);
-    const [photoURL, setPhotoURL] = useState<string | undefined>(undefined);
-
-    useEffect(() => {
-        getDownloadURL(ref(storage, profile.photoPath))
-            .then((url) => setPhotoURL(url))
-            .catch(() => void 0);
-    }, [profile]);
+    const photoURL = usePhotoURL(profile);
 
     return (
         <Card shadow="sm" padding="lg" radius="md" withBorder>
