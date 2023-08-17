@@ -22,9 +22,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ imgClassName, imgOnLoad, prof
             <Card.Section>
                 <Text className="m-2 text-xl font-semibold">{`${profile.name}, ${profile.age}`}</Text>
                 {profile.info &&
-                    <ScrollArea mah="5rem">
+                    <ScrollArea.Autosize mah="5rem" type="auto">
                         <Text className="table-caption m-2 mt-0">{profile.info}</Text>
-                    </ScrollArea>
+                    </ScrollArea.Autosize>
                 }
             </Card.Section>
             <Card.Section>
