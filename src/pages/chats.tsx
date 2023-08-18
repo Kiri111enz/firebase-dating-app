@@ -3,25 +3,20 @@ import { ScrollArea, Loader } from '@mantine/core';
 import { collection, query, where, onSnapshot, QuerySnapshot } from 'firebase/firestore';
 import { NextPageWithLayout, MainPageLayout, AppContext } from './_app';
 import ChatPreview from 'components/ChatPreview';
-import Chat from 'components/Chat';
-import { User } from 'stores/UserStore';
+import Chat, { ChatExt } from 'components/Chat';
 import { Chat as ChatModel } from 'stores/ChatsStore';
-
-interface ChatWithMate extends ChatModel {
-    mate: User
-}
 
 const Chats: NextPageWithLayout = () => {
     const { firestore, userStore } = useContext(AppContext);
-    const [chats, setChats] = useState<ChatWithMate[] | null>(null);
-    const [selectedChat, selectChat] = useState<ChatWithMate | null>(null);
+    const [chats, setChats] = useState<ChatExt[] | null>(null);
+    const [selectedChat, selectChat] = useState<ChatExt | null>(null);
 
     const fetchChats = async (querySnapshot: QuerySnapshot): Promise<void> => {
         Promise.all(querySnapshot.docs.map(async (docSnapshot) => {
             const chat = docSnapshot.data() as ChatModel;
             const mateUid = chat.usersUids[chat.usersUids[0] === userStore.user!.uid ? 1 : 0];
             const mate = await userStore.getByUid(mateUid);
-            return { ...chat, mate };
+            return { ...chat, docId: docSnapshot.id, users: [userStore.user!, mate] };
         })).then((chats) => setChats(chats));
     };
 
@@ -38,14 +33,13 @@ const Chats: NextPageWithLayout = () => {
         return <Loader />;
 
     if (selectedChat !== null)
-        return <Chat className="h-full w-full" onClose={() => selectChat(null)}
-            chat={selectedChat} users={[userStore.user!, selectedChat.mate]} />;
+        return <Chat className="h-full w-full" onClose={() => selectChat(null)} initialChat={selectedChat} />;
 
     return (
         <ScrollArea className="flex flex-col h-full w-full">
             {chats.map((chat) => (
-                <ChatPreview key={chat.mate.uid} className="hover:cursor-pointer"
-                    onClick={() => selectChat(chat)} profile={chat.mate.profile} />
+                <ChatPreview key={chat.users[1].uid} className="hover:cursor-pointer"
+                    onClick={() => selectChat(chat)} profile={chat.users[1].profile} />
             ))}
         </ScrollArea>
     );
