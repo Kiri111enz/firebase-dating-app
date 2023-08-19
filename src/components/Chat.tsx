@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { ActionIcon, TextInput, Button, Text, ScrollArea } from '@mantine/core';
+import { ActionIcon, TextInput, Button, ScrollArea } from '@mantine/core';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
 import { observer } from 'mobx-react-lite';
 import { AppContext } from 'pages/_app';
+import Message from './Message';
 import { ChatData } from 'stores/ChatsStore';
+import usePhotoURL from '../hooks/usePhotoURL';
 
 interface ChatProps {
     className?: string
@@ -12,8 +14,10 @@ interface ChatProps {
 }
 
 const Chat: React.FC<ChatProps> = observer(({ className, onClose, chatData }) => {
-    const { chatsStore } = useContext(AppContext);
+    const { userStore: { user }, chatsStore } = useContext(AppContext);
     const [message, setMessage] = useState('');
+    const myPhotoURL = usePhotoURL(user!.profile);
+    const matePhotoURL = usePhotoURL(chatData.mate.profile);
 
     return (
         <div className={`flex flex-col overflow-hidden ${className}`}>
@@ -27,8 +31,12 @@ const Chat: React.FC<ChatProps> = observer(({ className, onClose, chatData }) =>
             </div>
 
             <div className="grow overflow-auto">
-                <ScrollArea className="h-full">
-                    {chatData.chat.messages.map((message, index) => <Text key={index}>{message.text}</Text>)}
+                <ScrollArea type="scroll" className="h-full">
+                    {chatData.chat.messages.map((message, index) => message.authorUid === user!.uid ?
+                        <Message className="max-w-[30%] ml-auto" key={index} rtl message={message}
+                            photoURL={myPhotoURL} /> :
+                        <Message className="max-w-[30%]" key={index} message={message}
+                            photoURL={matePhotoURL} />)}
                 </ScrollArea>
             </div>
 
