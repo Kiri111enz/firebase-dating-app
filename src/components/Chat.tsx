@@ -1,27 +1,18 @@
 import React, { useContext, useState } from 'react';
-import { ActionIcon, TextInput, Button, Text } from '@mantine/core';
+import { ActionIcon, TextInput, Button, Text, ScrollArea } from '@mantine/core';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
-import { doc } from 'firebase/firestore';
+import { observer } from 'mobx-react-lite';
 import { AppContext } from 'pages/_app';
-import { User } from 'stores/UserStore';
-import { Chat as ChatModel } from 'stores/ChatsStore';
-import useChat from 'hooks/useChat';
-
-export interface ChatExt extends ChatModel {
-    docId: string
-    users: User[]
-}
+import { ChatData } from 'stores/ChatsStore';
 
 interface ChatProps {
     className?: string
     onClose?: () => void
-    initialChat: ChatExt
+    chatData: ChatData
 }
 
-const Chat: React.FC<ChatProps> = ({ className, onClose, initialChat }) => {
-    const { firestore, userStore, chatsStore } = useContext(AppContext);
-    const chat = useChat(initialChat.docId, initialChat);
-    const [docRef] = useState(doc(firestore, 'chats', initialChat.docId));
+const Chat: React.FC<ChatProps> = observer(({ className, onClose, chatData }) => {
+    const { chatsStore } = useContext(AppContext);
     const [message, setMessage] = useState('');
 
     return (
@@ -31,13 +22,14 @@ const Chat: React.FC<ChatProps> = ({ className, onClose, initialChat }) => {
                     <IconArrowNarrowLeft size="2rem" />
                 </ActionIcon>
                 <div className="relative ml-auto top-1.5 right-3 font-semibold text-white">
-                    {initialChat.users.filter((user => user.uid !== userStore.user!.uid ))
-                        .map((user) => user.profile.name).join(', ')}
+                    {chatData.mate.profile.name}
                 </div>
             </div>
 
-            <div className="grow">
-                {chat?.messages.map((message, index) => <Text key={index}>{message.text}</Text>)}
+            <div className="grow overflow-auto">
+                <ScrollArea className="h-full">
+                    {chatData.chat.messages.map((message, index) => <Text key={index}>{message.text}</Text>)}
+                </ScrollArea>
             </div>
 
             <div className="flex flex-row bottom-0 w-full pt-2">
@@ -45,11 +37,11 @@ const Chat: React.FC<ChatProps> = ({ className, onClose, initialChat }) => {
                     value={message} onChange={(event) => setMessage(event.currentTarget.value)} />
                 <Button onClick={() => {
                     if (message)
-                        chatsStore.sendMessage(docRef, chat!.messages, message).then(() => setMessage(''));
+                        chatsStore.sendMessage(chatData.id, message).then(() => setMessage(''));
                 }}>Send</Button>
             </div>
         </div>
     );
-};
+});
 
 export default Chat;
