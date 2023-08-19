@@ -19,6 +19,11 @@ const Chat: React.FC<ChatProps> = observer(({ className, onClose, chatData }) =>
     const myPhotoURL = usePhotoURL(user!.profile);
     const matePhotoURL = usePhotoURL(chatData.mate.profile);
 
+    const sendIfNotEmpty = (): void => {
+        if (message)
+            chatsStore.sendMessage(chatData.id, message).then(() => setMessage(''));
+    };
+
     return (
         <div className={`flex flex-col overflow-hidden ${className}`}>
             <div className="flex flex-row top-0 w-full pb-2 bg-[#228be6]">
@@ -42,11 +47,12 @@ const Chat: React.FC<ChatProps> = observer(({ className, onClose, chatData }) =>
 
             <div className="flex flex-row bottom-0 w-full pt-2">
                 <TextInput className="w-full" placeholder="Type..."
-                    value={message} onChange={(event) => setMessage(event.currentTarget.value)} />
-                <Button onClick={() => {
-                    if (message)
-                        chatsStore.sendMessage(chatData.id, message).then(() => setMessage(''));
-                }}>Send</Button>
+                    value={message} onChange={(event) => setMessage(event.currentTarget.value)}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Enter')
+                            sendIfNotEmpty();
+                    }}/>
+                <Button onClick={sendIfNotEmpty}>Send</Button>
             </div>
         </div>
     );
