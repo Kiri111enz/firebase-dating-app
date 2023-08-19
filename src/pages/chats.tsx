@@ -13,16 +13,19 @@ const Chats: NextPageWithLayout = observer(() => {
     if (chatsStore.chatsData === null)
         return <Loader />;
 
-    if (chatData !== null)
-        return <Chat className="h-full w-full" onClose={() => setChatData(null)} chatData={chatData} />;
-
     return (
-        <ScrollArea className="flex flex-col h-full w-full">
-            {chatsStore.chatsData.map((chat) => (
-                <ChatPreview key={chat.id} className="hover:cursor-pointer"
-                    onClick={() => setChatData(chat)} chatData={chat} />
-            ))}
-        </ScrollArea>
+        <>
+            <ScrollArea className={`flex flex-col h-full w-full ${chatData === null ? '' : 'hidden'}`}>
+                {chatsStore.chatsData.map((chat) => (
+                    <ChatPreview key={chat.id} className="hover:cursor-pointer"
+                        onClick={() => setChatData(chat)} chatData={chat} />
+                ))}
+            </ScrollArea>
+
+            {chatData !== null &&
+                <Chat className="h-full w-full" onClose={() => setChatData(null)} chatData={chatData} />
+            }
+        </>
     );
 });
 
