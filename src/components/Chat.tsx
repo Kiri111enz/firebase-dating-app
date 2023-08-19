@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { ActionIcon, TextInput, Button, ScrollArea } from '@mantine/core';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
 import { observer } from 'mobx-react-lite';
@@ -18,10 +18,19 @@ const Chat: React.FC<ChatProps> = observer(({ className, onClose, chatData }) =>
     const [message, setMessage] = useState('');
     const myPhotoURL = usePhotoURL(user!.profile);
     const matePhotoURL = usePhotoURL(chatData.mate.profile);
+    const viewport = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [chatData.chat.messages]);
 
     const sendIfNotEmpty = (): void => {
         if (message)
             chatsStore.sendMessage(chatData.id, message).then(() => setMessage(''));
+    };
+
+    const scrollToBottom = (): void => {
+        viewport.current?.scrollTo({ top: viewport.current.scrollHeight, behavior: 'smooth' });
     };
 
     return (
@@ -36,7 +45,7 @@ const Chat: React.FC<ChatProps> = observer(({ className, onClose, chatData }) =>
             </div>
 
             <div className="grow overflow-auto">
-                <ScrollArea type="scroll" className="h-full">
+                <ScrollArea type="scroll" className="h-full" viewportRef={viewport}>
                     {chatData.chat.messages.map((message, index) => message.authorUid === user!.uid ?
                         <Message className="max-w-[30%] ml-auto" key={index} rtl message={message}
                             photoURL={myPhotoURL} /> :
