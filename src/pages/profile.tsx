@@ -88,7 +88,7 @@ const Profile: NextPageWithLayout = observer(() => {
                 <Text className="mt-4 mb-2">Info (optional):</Text>
                 <Textarea placeholder="Write something about yourself..." {...form.getInputProps('info')} />
 
-                {(form.isDirty() || file) &&
+                {(userStore.user!.profile.setUp ? (form.isDirty() || file) : (form.isDirty() && file)) &&
                     <div className="text-center mt-2">
                         <Button type="submit">Update</Button>
                     </div>
