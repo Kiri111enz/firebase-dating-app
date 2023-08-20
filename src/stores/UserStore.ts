@@ -43,8 +43,8 @@ const getEmptyUser = (uid: string): User => ({
 
 const getDefaultFilter = (profile: Profile): Filter => ({
     genders: [profile.gender === 'M' ? 'F' : 'M'],
-    minAge: profile.age - 5,
-    maxAge: profile.age + 5,
+    minAge: profile.age - 2,
+    maxAge: profile.age + 2,
     city: profile.city
 });
 
@@ -81,6 +81,14 @@ export default class UserStore {
         if (photo)
             await uploadBytes(ref(this.appStore.storage, newProfile.photoPath), photo);
         await updateDoc(this.ref!, { profile: newProfile, filter: newFilter });
+    }
+
+    public async updateFilter(newFilter: Filter): Promise<void> {
+        if (!this._user)
+            throw new Error('Tried to update filter without authentication.');
+
+        this._user.filter = newFilter;
+        await updateDoc(this.ref!, { filter: newFilter });
     }
 
     public async markAsWatched(candidate: User, choice: Choice): Promise<void> {

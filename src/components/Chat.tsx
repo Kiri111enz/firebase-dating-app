@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite';
 import { AppContext } from 'pages/_app';
 import Message from './Message';
 import { ChatData } from 'stores/ChatsStore';
-import usePhotoURL from '../hooks/usePhotoURL';
+import usePhotoURL from 'hooks/usePhotoURL';
 
 interface ChatProps {
     className?: string

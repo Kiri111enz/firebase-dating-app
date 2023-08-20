@@ -16,9 +16,9 @@ const Chats: NextPageWithLayout = observer(() => {
     return (
         <>
             <ScrollArea className={`flex flex-col h-full w-full ${chatData === null ? '' : 'hidden'}`}>
-                {chatsStore.chatsData.map((chat) => (
-                    <ChatPreview key={chat.id} className="hover:cursor-pointer"
-                        onClick={() => setChatData(chat)} chatData={chat} />
+                {chatsStore.chatsData.map((chatData) => (
+                    <ChatPreview key={chatData.id} className="hover:cursor-pointer"
+                        onClick={() => setChatData(chatData)} chatData={chatData} />
                 ))}
             </ScrollArea>
 

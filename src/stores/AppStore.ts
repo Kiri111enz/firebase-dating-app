@@ -2,7 +2,7 @@ import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
-import { firebaseConfig } from '../firebaseConfig';
+import { firebaseConfig } from 'firebaseConfig';
 import UserStore from './UserStore';
 import ChatsStore from './ChatsStore';
 

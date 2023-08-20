@@ -29,7 +29,8 @@ const ProfileFeed: React.FC<ProfileFeedProps> = observer(({ fetchCandidates, dep
         fetchCandidates().then((querySnapshot) => {
             const users = querySnapshot.docs.map((docSnapshot) => docSnapshot.data() as User);
             const watched = new Set<string>(userStore.user!.activity.watched);
-            setCandidates(users.filter((user) => !watched.has(user.uid)));
+            const myUid = userStore.user!.uid;
+            setCandidates(users.filter((user) => (!watched.has(user.uid)) && user.uid !== myUid));
         });
     }, [deps]);
 
