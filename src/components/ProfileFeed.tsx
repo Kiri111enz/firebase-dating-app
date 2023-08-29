@@ -42,7 +42,7 @@ const ProfileFeed: React.FC<ProfileFeedProps> = observer(({ fetchCandidates, dep
 
     return (
         <div ref={scope} style={{ opacity: 0 }}>
-            <ProfileCard imgClassName='max-h-[25rem] max-w-[40rem]' imgOnLoad={() =>
+            <ProfileCard imgClassName='max-h-[50dvh] max-w-[80vw]' imgOnLoad={() =>
                 animate(scope.current, { y: 0, opacity: 1 }, { duration: 0.5 })}
             profile={candidates[candidateIndex].profile}
             onLike={() => nextCandidate(Choice.Like)}
